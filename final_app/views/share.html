@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head> 
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/design.css">
+    
+    <title>Main page</title>
+</head>
+<body class="bb">
+  <div class="row">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container-fluid">
+              <a class="navbar-brand tex" >We Post</a>
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a id ="home"  class="nav-link "  href="#">Home</a>
+                  </li>
+                  <li class="nav-item">
+                    <a id ="log_out" class="nav-link"  href="./index.html">Log out</a>
+                  </li>
+                  
+                  
+                </ul>
+              </div>
+            </div>
+          </nav></div>
+
+      <div class="row " id="m_r">
+            <div class="col-sm-6 ">
+              <div class="col-sm-6  " id="a">
+                  <h2 id="h" class="tex" >Share here</h2>
+                  <hr>
+                  <div class=" rounded-2 " id="l">
+                      <form >
+                        
+                          <input class="form-control mb-2 tex" id="title" type="text" placeholder="Title"  >
+                          <div>
+                          <label  for="Subject" >Post Subject</label>
+                          <select class="form-control tex" id="Subject" >
+                          <option >Policy</option>
+                          <option >social</option>
+                          <option >science</option>
+                          <option >Nature</option>
+                          <option >Another</option>
+                          </select>
+                        </div>
+                        
+                          <div>
+                            <label  for="Event_Location" >Event Location</label>
+                            <select class="tex form-control" id="Event_Location" >
+                              <option>USA</option>
+                              <option >Isreal</option>
+                              <option >Saudi Arabia</option>
+                              <option >Turkey</option>
+                              <option >Another</option>
+                              </select>
+                          </div>
+                          
+                          
+                          <label for="content" >Content</label>
+            
+                          <div class="form-group">
+                              <textarea class=" form-control" id="content" rows="3" 
+                                placeholder="what are you thinking about ?" ></textarea>
+                              
+                              <label  for="img">image</label>
+                              <br>
+                              <input class="tex form-control" type="url" id="img" placeholder="Enter url"></input>
+                            </div>
+            
+                            <div class="row">
+                                <div class="col">
+                                  <button class=" share btn btn-light mt-3"  id="post" >Post</button>
+                                  
+                                  <button class=" share btn btn-light mt-3"  id="clear">Clear</button>
+                                </div>
+                              
+                            </div>
+            
+                      </form>
+                  </div>
+              </div>
+            
+          </div>
+
+
+          <div class="col-sm-6" >    
+            <div class="row " id="a">
+        <div class="col " >
+                <h2 class="tex">All Posts</h2>
+            <hr>
+            <div id="no_posts " class="col" >
+                
+            </div>   
+            <div class="col" id="all">
+              <div  id="all1">
+                
+              </div>
+            </div>
+        </div>
+</div> 
+          </div>
+      </div>
+
+        
+        <script type="module">
+          
+          // Import the functions you need from the SDKs you need
+          import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+          import { ref, get, child } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+          import { getAuth, onAuthStateChanged , signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+          import { doc , getDoc , updateDoc, collection, addDoc, getFirestore, deleteDoc , setDoc, getDocs, } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"
+          
+         
+          const firebaseConfig = {
+        apiKey: "AIzaSyBtoQ1RNx7u1TgY-pzO1pCqeTG-EiSYDrQ",
+        authDomain: "happy-shop-6537a.firebaseapp.com",
+        projectId: "happy-shop-6537a",
+        storageBucket: "happy-shop-6537a.appspot.com",
+        messagingSenderId: "474889425951",
+        appId: "1:474889425951:web:c8aef23825b19edf86312a",
+        measurementId: "G-Z4JXF701BP"
+      };
+        
+        const app = initializeApp(firebaseConfig); // Initialize Firebase
+        const auth = getAuth(app);
+        const db = getFirestore();
+        
+          let count ;
+          let rix=true;
+          let riad=0;
+
+          let title;
+          let sub;
+          let loc ;
+          let cont ;
+          let url ;
+          let coc;
+          let idiot;
+
+         
+          //   await dd() ;
+          // }catch(e){
+          //   $("no_posts").append(`
+          //   <h3 id="no_posts1">NO POSTS YET!</h3>
+          //   `)
+          // }
+            
+          function clear(){
+              $("#title").val('') ;
+              $("#content").val('') ;
+              $("#img").val('');
+              $('#Event_Location').prop('selectedIndex',0);
+              $('#Subject').prop('selectedIndex',0);
+};
+
+          function dll(elm){
+            idiot = $(elm).attr("id"); // id to remove from firebase
+            return idiot
+          }
+
+          async function post_to_page(f_counter, url, title, sub, loc, content){
+
+                  let khader = (await getFields(db))[riad].id ;
+                  // console.log(khader);  
+                  $('#all').append(`<div id="all1"></div>`);
+                  $("#all1").append(`
+                  <div  class="as" id="${khader}">
+                    <div class="row" id="${f_counter}">
+                        <img style="width:150px; height:150px;" src=" ${url}" >
+                        <div class="col">
+                          <h5 style="font-family: Times New Roman;"> Title:<b> ${title} </b></h5>
+                          <p style="font-family: Times New Roman; color:red;"> Subject : ${sub} , Location: ${loc} . </p>
+                          <p style="font-family: Times New Roman;">Content: ${content} </p>
+                        </div>
+                        <div class="col-1" >
+                          <button class="fd share btn btn-light mt-3"  id="b${riad}" style="font-family:Times New Roman ">Edit</button>
+                          <button class="fd share btn btn-light mt-3"  id="${riad}" style="font-family:Times New Roman ;"  >Delete</button>
+                          
+                        </div>
+                    </div>
+                        <hr>
+                  </div>`); 
+                  // console.log(khader);  
+                  var btn = document.getElementById(riad++);
+                  btn.addEventListener("click", async function() {
+                    await deleteDoc(doc(db, "posts", dll(`#${khader}`) ));
+                    del_div("all1");
+                    await dd();
+                  });
+                  // console.log(khader);  
+                  var btn1 = document.getElementById(`b${riad-1}`);
+                  await btn1.addEventListener("click", async function() {
+                    let d = (await getDoc(doc(db, "posts", dll(`#${khader}`))));
+                    while(!d){
+                     d = (await getDoc(doc(db, "posts", dll(`#${khader}`))));
+                    }
+                    d=d.data();
+                    let t = d.Title ;
+                    let s = d.sub ;
+                    let l = d.loc ;
+                    let c = d.content ;
+                    let u = d.url ;
+                    await deleteDoc(doc(db, "posts", dll(`#${khader}`) ));
+                    $("#title").val(t);
+                    $('#Event_Location').val(`${l}`);
+                    $('#Subject').val(`${s}`);
+                    $("#content").val(c);
+                    $("#img").val(u);
+                    alert("you'r post info will show in the share form , edit your info then click post .");
+                  });
+                  
+                  };
+          
+          async function write_to_fire(x,s,l){
+            await setDoc(doc(db, "posts",`${count++}`), {
+              Title:`${$("#title").val()}` ,
+              sub : `${s}` ,
+              loc : `${l}`,
+              content: `${x}`,
+              url : `${$("#img").val()}`,
+              id : count-1
+              });
+              // console.log(`firebase ${$("#Subject").val()}`)
+            };
+
+          async function getCounter(db) {
+              const citiesCol = collection(db, 'counter');
+              const citySnapshot = await getDocs(citiesCol);
+              const cityList = citySnapshot.docs.map(doc => doc.data().counter);
+              return cityList;
+            };
+          async function d(){
+              count = (await getCounter(db))[0];
+              
+            }
+
+          async function getFields(db) {
+            const citiesCol = collection(db, 'posts');
+            const citySnapshot = await getDocs(citiesCol);
+            const cityList = citySnapshot.docs.map(doc => doc.data());
+            return cityList;
+          };
+          async function dd(){
+              let a = await getFields(db) ;
+              for(var i = a.length-1; i>=0;i--){
+               
+                title = a[i].Title;
+                loc = a[i].loc;
+                sub = a[i].sub;
+                cont = a[i].content;
+                url = a[i].url;
+                riad=i;
+                // console.log(riad);
+                await post_to_page(count,url,title,sub,loc,cont);
+                
+              }
+            }
+
+          function del_div(x){
+            riad=0;
+            $(`#${x}`).remove() ;
+          };
+
+          async function update_counter(){
+            await updateDoc(doc(db,"counter","mqHxf8Yvs79MppXalOt6"),{
+              // read the data from firebase
+              counter : count
+            })
+          };
+          
+          
+          $("#clear").click(function (e) { 
+            e.preventDefault();
+            clear();
+           });
+ 
+        
+          $("#post").click(async function(e){
+            e.preventDefault();
+            // code
+            // }catch(e){
+
+            // } ;
+            var t = false ;
+            // if(bo){
+            if ($("#title").val() == "" ){
+                alert("forgot to write your Title !!!");
+                // return ;
+          
+            }else if ($("#content").val() == "" ){
+              alert("forgot to write your content !!!");
+              // return ;  
+            }else{
+              t = true ;
+              try{
+                var x = $("#content").val()
+                //get counter from fire
+                //check
+                var sss = $("#Subject").val()
+                var lll = $("#Event_Location").val()
+                await d();
+                
+                // write_to_fire();
+                await write_to_fire(x,sss,lll);
+                
+                // update counter in firebase
+                await update_counter();
+                
+                //delete all posts
+                //check
+                del_div('no_posts1');
+                del_div('all1');
+                //write all posts
+                // check 
+                await dd();
+
+              }catch(e){
+                alert(e);
+                
+              }}
+              
+              if(t){clear();}
+          
+        }
+          );
+          if(rix==true){
+            await dd();
+            rix=false;
+          }
+        </script>
+</body>
+</html>
